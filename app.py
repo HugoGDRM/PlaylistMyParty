@@ -2,6 +2,7 @@
 from ytmusicapi import YTMusic
 import requests
 import json
+import os
 
 # Time dependencies
 from datetime import date
@@ -84,6 +85,10 @@ def add_new_song(playlist_id, song_name):
 
 def main():
     frames_file_name = 'frames.wav'
+
+    if os.path.exists(frames_file_name):
+        os.remove(frames_file_name)
+
     ytmusic = YTMusic('headers_auth.json')
 
     print('Playlist name: ', end='')
@@ -94,10 +99,14 @@ def main():
         get_audio(7, frames_file_name)
         result_json = recognize_song(frames_file_name)
         if result_json is not None:
-            add_new_song(playlist_id, result_json['result']['artist'] + ' ' + result_json['result']['title'])
-        time.sleep(30)
+            artist = result_json['result']['artist']
+            title = result_json['result']['title']
+            if artist is not None and title is not None:
+                add_new_song(playlist_id, artist + ' ' + title)
+        time.sleep(60)
 
-
+    if os.path.exists(frames_file_name):
+        os.remove(frames_file_name)
 
 if __name__ == "__main__":
     main()
